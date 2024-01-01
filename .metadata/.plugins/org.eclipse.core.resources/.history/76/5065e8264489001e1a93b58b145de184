@@ -1,0 +1,11 @@
+Feature: login functionality
+
+Background:
+Given user should be on login page
+
+Scenario: valid login
+When user enters valid credentials and click on login button
+Then user should be navigated to home page
+And user can validate logout link
+And close browser
+

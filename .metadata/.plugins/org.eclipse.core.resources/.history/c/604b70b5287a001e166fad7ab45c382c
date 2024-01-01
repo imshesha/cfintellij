@@ -1,0 +1,140 @@
+package com.Vtiger.test;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterSuite;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeSuite;
+
+import com.codoid.products.exception.FilloException;
+import com.codoid.products.fillo.Connection;
+import com.codoid.products.fillo.Fillo;
+import com.codoid.products.fillo.Recordset;
+
+import io.github.bonigarcia.wdm.WebDriverManager;
+
+/*public class base_test
+{
+
+
+	public WebDriver driver;
+	public Properties pro;
+	public Map<String,Map<String,String>> dt;
+	
+	
+	@BeforeMethod
+	public LoginPage initialization() throws IOException, FilloException
+	{
+		pro=readproperties();
+		driver=launchApp();
+		dt=readexceldata();
+		System.out.println(dt);
+		LoginPage lp=new LoginPage(driver);
+		return lp;
+		//readexceldata();
+		
+	}
+	*/
+
+
+public class base_test {
+	
+	public WebDriver driver;
+	public Properties prop;
+	public Map<String,Map<String,String>> dt;
+	
+
+	@BeforeSuite
+	public void initiation() throws IOException, FilloException
+	{
+		prop = readproprties();
+		
+		dt = readTestData();
+		System.out.println(dt);
+		//System.exit(0);
+		launchApp();
+	}
+
+
+	public WebDriver launchApp()
+	{
+		if(prop.getProperty("browser").equals("chrome"))
+		{
+		WebDriverManager.chromedriver().setup();
+		driver=new ChromeDriver();
+		}
+		else if(prop.getProperty("browser").equals("edge"))
+		{
+			WebDriverManager.edgedriver().setup();
+			driver=new EdgeDriver();
+		
+			
+		}
+		else if(prop.getProperty("browser").equals("firefox"))
+		{
+			WebDriverManager.firefoxdriver().setup();
+			driver=new FirefoxDriver();
+		}
+		driver.manage().window().maximize();
+		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(Integer.parseInt(prop.getProperty("implicitewait"))));
+		driver.get(prop.getProperty("appurl"));
+		return driver;
+	}
+	@AfterSuite
+	public void closeapp()
+	{
+	driver.quit();
+	}
+	
+	public Properties readproprties() throws IOException
+	{
+		Properties prop = new Properties();
+		FileInputStream fis = new FileInputStream(System.getProperty("user.dir")+"/src/test/resources/Config/settings.properties");
+		prop.load(fis);
+		return prop;		
+	}
+	public Map<String,Map<String,String>> readTestData() throws FilloException
+	{
+		Fillo fillo=new Fillo();
+		Connection connection=fillo.getConnection(System.getProperty("user.dir")+"/src/test/resources/TestData/data.xlsx");
+		String strQuery="Select * from Sheet1";
+		Recordset recordset=connection.executeQuery(strQuery);
+		int rowcount = recordset.getCount();
+		System.out.println(rowcount);
+		int colmcount = recordset.getFieldNames().size();
+		System.out.println(colmcount);
+		Map<String,Map<String,String>> data = new HashMap<String,Map<String,String>>();
+		
+		while(recordset.next())
+		{
+			Map<String,String> rowdata = new HashMap<String,String>();	
+			String vTcname = recordset.getField("Tcname");
+			for(int i=0;i<colmcount;i++)
+			{
+				String colname = recordset.getFieldNames().get(i);
+				String colVal = recordset.getField(colname);
+				rowdata.put(colname,colVal);
+			}
+			
+			data.put(vTcname, rowdata);
+		}
+		 
+		
+		recordset.close();
+		connection.close();
+		return data;
+	}
+	
+}

@@ -1,0 +1,21 @@
+package javaprogramint;
+
+public class swap_num 
+{
+	public static void main(String[] args) {
+		int a=10;
+		int b=20;
+		
+		System.out.println("before swapping value of a is" +a);
+		System.out.println("before swapping value of b is" +b);
+		
+		int c;
+		c=a;
+		a=b;
+		b=c;
+		System.out.println("after swapping value of a is" +a);
+		System.out.println("after swapping value of b is" +b);
+		
+	}
+
+}

@@ -1,0 +1,6 @@
+Feature:login functionality
+Scenario:valid login
+Given:user is on login page
+When:user enters valid UserName And valid Password And click on Login button
+Then:user should navigate to Home page
+And: user can see error message
